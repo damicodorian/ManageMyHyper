@@ -1,43 +1,58 @@
 ﻿@page "/createworktask"
 @inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Manager")]
 
 <h3>Création d'une nouvelle tâche.</h3>
 
 @if(WorkTaskService.WorkTaskPriorities.Count > 0)
 {
+<EditForm Model="@workTask" OnValidSubmit="HandleWorkTaskCreation">
+    <DataAnnotationsValidator />
     <div class="form-group">
-        <label>Priorité de la tâche : </label>
-        <select @bind="selectedWorkTaskPriorityId" class="form-control">
-            @foreach (var workTaskPriority in WorkTaskService.WorkTaskPriorities)
-            {
-                <option value="@workTaskPriority.Id">@workTaskPriority.Name</option>
-            }
-        </select>
+        <label for="name">Nom de la tâche</label>
+        <InputText id="name" @bind-Value="workTask.Name" class="form-control" />
+        <ValidationMessage For="@(() => workTask.Name)" />
     </div>
 
-    <button @onclick="CreateNewWorkTask" class="btn btn-primary">Créer la tâche</button>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <InputTextArea id="description" @bind-Value="workTask.Description" class="form-control" />
+    </div>
 
+    <div class="form-group">
+        <label for="workTaskPriority">Priorité</label>
+        <InputSelect id="workTaskPriority" @bind-Value="workTask.WorkTaskPriorityId" class="form-control">
+            @foreach (var workTaskPriority in WorkTaskService.WorkTaskPriorities)
+                {
+                <option value="@workTaskPriority.Id.ToString()">@workTaskPriority.Name</option>
+                }
+        </InputSelect>
+    </div>
+    <button type="submit" class="btn btn-primary">Créer la tâche</button>
+</EditForm>
 }
 else
 {
-    <span>Chargement des données...</span>
+<span>Chargement des données...</span>
 }
 
 @code {
-    int selectedWorkTaskPriorityId = 1;
-    string workTaskName = "Faire le ménage.";
+    ManageMyHyper.Shared.WorkTask workTask = new ManageMyHyper.Shared.WorkTask();
 
-    private void CreateNewWorkTask()
+    private async Task HandleWorkTaskCreation()
     {
-        Console.WriteLine("selectedWorkTaskPriorityId : " + selectedWorkTaskPriorityId);
-        ManageMyHyper.Shared.WorkTaskPriority workTaskPriority =
-            WorkTaskService.WorkTaskPriorities.FirstOrDefault(w => w.Id == selectedWorkTaskPriorityId);
-        WorkTaskService.CreateNewWorkTask(workTaskName, selectedWorkTaskPriorityId);
+        var response = await WorkTaskService.CreateNewWorkTask(workTask);
+        if(response.Success)
+        {
+            workTask = new ManageMyHyper.Shared.WorkTask();
+            workTask.WorkTaskPriorityId = WorkTaskService.WorkTaskPriorities[0].Id;
+        }
+
     }
 
     protected override async Task OnInitializedAsync()
     {
         await WorkTaskService.LoadWorkTaskPrioritiesAsync();
+        workTask.WorkTaskPriorityId = WorkTaskService.WorkTaskPriorities[0].Id;
     }
 }

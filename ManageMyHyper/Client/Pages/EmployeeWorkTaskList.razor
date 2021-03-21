@@ -1,0 +1,43 @@
+﻿@inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tâche</th>
+            <th>Description</th>
+            <th>Priorité</th>
+            <th>Manager</th>
+            <th>Date de création</th>
+            <th>Réserver</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var workTask in WorkTaskService.WorkTasks)
+        {
+            <tr>
+                <td>@workTask.Name</td>
+                <td>@workTask.Description</td>
+                <td>@workTask.WorkTaskPriority.Name</td>
+                <td>@(workTask.CreatorUser.FirstName + " " + workTask.CreatorUser.LastName)</td>
+                <td>@(workTask.CreationDate.ToString("dd/MM/yyyy"))</td>
+                <td>
+                    <button class="btn btn-primary-outline" @onclick="@(() => BookWorkTask(workTask.Id))">
+                        <img src="icons/book_worktask.png"/>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await WorkTaskService.GetWorkTaskAsync();
+    }
+
+    public async Task BookWorkTask(int workTaskId)
+    {
+        await WorkTaskService.BookWorkTask(workTaskId);
+    }
+}

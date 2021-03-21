@@ -3,22 +3,17 @@
 @attribute [Authorize]
 
 <h3>Liste des tâches</h3>
+<AuthorizeView Roles="Manager">
+    <Authorized>
+        <ManagerWorkTaskList/>
+    </Authorized>
+</AuthorizeView>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Id</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var managerWorkTask in WorkTaskService.MyWorkTasks)
-        {
-            <tr>
-                <td>@managerWorkTask.WorkTaskId</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<AuthorizeView Roles="Employé">
+    <Authorized>
+        <EmployeeWorkTaskList/>
+    </Authorized>
+</AuthorizeView>
 
 @code {      
     protected override async Task OnInitializedAsync()

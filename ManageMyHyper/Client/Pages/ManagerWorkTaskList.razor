@@ -1,0 +1,36 @@
+﻿@inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tâche</th>
+            <th>Description</th>
+            <th>Priorité</th>
+            <th>Manager</th>
+            <th>Assignée à</th>
+            <th>Date de création</th>
+            <th>Date terminée</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var workTask in WorkTaskService.WorkTasks)
+        {
+            <tr>
+                <td>@workTask.Name</td>
+                <td>@workTask.Description</td>
+                <td>@workTask.WorkTaskPriority.Name</td>
+                <td>@(workTask.CreatorUser.FirstName + " " + workTask.CreatorUser.LastName)</td>
+                <td>@(workTask.AssignedUser?.FirstName + " " + workTask.AssignedUser?.LastName)</td>
+                <td>@(workTask.CreationDate.ToString("dd/MM/yyyy"))</td>
+                <td>@(workTask.DateHasBeenDone?.ToString("dd/MM/yyyy"))</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await WorkTaskService.GetWorkTaskAsync();
+    }
+}

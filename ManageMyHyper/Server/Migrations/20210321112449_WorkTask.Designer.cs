@@ -3,14 +3,16 @@ using System;
 using ManageMyHyper.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ManageMyHyper.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210321112449_WorkTask")]
+    partial class WorkTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +69,7 @@ namespace ManageMyHyper.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("AssignedUserId")
+                    b.Property<int>("AssignedUserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreationDate")
@@ -79,9 +81,6 @@ namespace ManageMyHyper.Server.Migrations
                     b.Property<DateTime?>("DateHasBeenDone")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
                     b.Property<bool>("IsDone")
                         .HasColumnType("INTEGER");
 
@@ -89,7 +88,10 @@ namespace ManageMyHyper.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("WorkTaskPriorityId")
+                    b.Property<int?>("PriorityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("WorkTaskPriority")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -98,7 +100,7 @@ namespace ManageMyHyper.Server.Migrations
 
                     b.HasIndex("CreatorUserId");
 
-                    b.HasIndex("WorkTaskPriorityId");
+                    b.HasIndex("PriorityId");
 
                     b.ToTable("WorkTasks");
                 });
@@ -132,7 +134,9 @@ namespace ManageMyHyper.Server.Migrations
                 {
                     b.HasOne("ManageMyHyper.Shared.User", "AssignedUser")
                         .WithMany()
-                        .HasForeignKey("AssignedUserId");
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ManageMyHyper.Shared.User", "CreatorUser")
                         .WithMany()
@@ -140,17 +144,15 @@ namespace ManageMyHyper.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ManageMyHyper.Shared.WorkTaskPriority", "WorkTaskPriority")
+                    b.HasOne("ManageMyHyper.Shared.WorkTaskPriority", "Priority")
                         .WithMany()
-                        .HasForeignKey("WorkTaskPriorityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PriorityId");
 
                     b.Navigation("AssignedUser");
 
                     b.Navigation("CreatorUser");
 
-                    b.Navigation("WorkTaskPriority");
+                    b.Navigation("Priority");
                 });
 #pragma warning restore 612, 618
         }

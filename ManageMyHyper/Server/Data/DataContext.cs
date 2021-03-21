@@ -16,6 +16,7 @@ namespace ManageMyHyper.Server.Data
 
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<WorkTaskPriority> WorkTaskPriorities { get; set; }
+        public DbSet<WorkTask> WorkTasks { get; set; }
         public DbSet<User> Users { get; set; }
     }
 }

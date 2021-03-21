@@ -3,14 +3,16 @@ using System;
 using ManageMyHyper.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ManageMyHyper.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210321121942_updateWorkTaskAddDescription")]
+    partial class updateWorkTaskAddDescription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +69,7 @@ namespace ManageMyHyper.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("AssignedUserId")
+                    b.Property<int>("AssignedUserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreationDate")
@@ -132,7 +134,9 @@ namespace ManageMyHyper.Server.Migrations
                 {
                     b.HasOne("ManageMyHyper.Shared.User", "AssignedUser")
                         .WithMany()
-                        .HasForeignKey("AssignedUserId");
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ManageMyHyper.Shared.User", "CreatorUser")
                         .WithMany()

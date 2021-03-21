@@ -24,7 +24,7 @@ namespace ManageMyHyper.Server.Services
         public async Task<User> GetUser()
         {
             var userId = int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _context.Users.Include(u => u.UserRole).FirstOrDefaultAsync(u => u.Id == userId);
             return user;
         }
     }

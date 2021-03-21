@@ -24,17 +24,45 @@ namespace ManageMyHyper.Client.Services
 
         public IList<WorkTaskPriority> WorkTaskPriorities { get; set; } = new List<WorkTaskPriority>();
 
-        public IList<ManagerWorkTask> MyWorkTasks { get; set; } = new List<ManagerWorkTask>();
+        public IList<WorkTask> WorkTasks { get; set; } = new List<WorkTask>();
 
         public event Action OnChange;
 
-        public void CreateNewWorkTask(string taskName, int workTaskPriorityId)
+        public async Task BookWorkTask(int workTaskId)
         {
-            WorkTaskPriority workTaskPriority = WorkTaskPriorities.First(w => w.Id == workTaskPriorityId);
-            MyWorkTasks.Add(new ManagerWorkTask { WorkTaskId = workTaskPriorityId });
-            WorkTasksTodo += 1;
-            _toastService.ShowSuccess("La tâche a été créée.", "Succès");
-            WorkTasksTodoChanged();
+            var result = await _httpClient.PutAsJsonAsync("api/WorkTask", workTaskId);
+            var response = await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
+            if(response.Success)
+            {
+                _toastService.ShowSuccess(response.Message, "Succès");
+            }
+            else
+            {
+                _toastService.ShowError(response.Message, "Erreur.");
+            }
+            await GetWorkTaskAsync();
+        }
+
+        public async Task<ServiceResponse<string>> CreateNewWorkTask(WorkTask request)
+        {
+            var result = await _httpClient.PostAsJsonAsync("api/WorkTask", request);
+            var response =  await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
+            if(response.Success)
+            {
+                WorkTasksTodo += 1;
+                _toastService.ShowSuccess(response.Message, "Succès");
+                WorkTasksTodoChanged();
+            }
+            else
+            {
+                _toastService.ShowError(response.Message, "Erreur.");
+            }
+            return response;
+        }
+
+        public async Task GetWorkTaskAsync()
+        {
+            WorkTasks = await _httpClient.GetFromJsonAsync<IList<WorkTask>>("api/WorkTask");
         }
 
         public async Task LoadWorkTaskPrioritiesAsync()

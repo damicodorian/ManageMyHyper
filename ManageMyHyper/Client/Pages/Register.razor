@@ -58,6 +58,7 @@ else
 
 @code {
     ManageMyHyper.Shared.UserRegister user = new ManageMyHyper.Shared.UserRegister();
+
     async void HandleRegistration()
     {
         var result = await AuthenticationService.Register(user);
