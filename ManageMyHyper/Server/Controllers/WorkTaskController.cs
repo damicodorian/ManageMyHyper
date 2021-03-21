@@ -38,6 +38,7 @@ namespace ManageMyHyper.Server.Controllers
                     .Include(w => w.WorkTaskPriority)
                     .Include(w => w.CreatorUser)
                     .Include(w => w.AssignedUser)
+                    .OrderByDescending(w => w.CreationDate)
                     .ToListAsync();
             }
             else
@@ -47,6 +48,35 @@ namespace ManageMyHyper.Server.Controllers
                     .Include(w => w.WorkTaskPriority)
                     .Include(w => w.CreatorUser)
                     .Include(w => w.AssignedUser)
+                    .OrderByDescending(w => w.CreationDate)
+                    .ToListAsync();
+            }
+            return Ok(workTasks);
+        }
+
+        [HttpGet("getmyworktasks")]
+        public async Task<IActionResult> GetMyWorkTasks()
+        {
+            var workTasks = new List<WorkTask>();
+            var user = await _utilityService.GetUser();
+            if (user.UserRole.Name == "Manager")
+            {
+                workTasks = await _context.WorkTasks
+                    .Where(w => w.CreatorUserId == user.Id)
+                    .Include(w => w.WorkTaskPriority)
+                    .Include(w => w.AssignedUser)
+                    .OrderByDescending(w => w.CreationDate)
+                    .ToListAsync();
+            }
+            else
+            {
+                workTasks = await _context.WorkTasks
+                    .Where(w => w.AssignedUserId == user.Id)
+                    .Include(w => w.WorkTaskPriority)
+                    .Include(w => w.CreatorUser)
+                    .Include(w => w.AssignedUser)
+                    .OrderBy(w => w.IsDone)
+                    .OrderByDescending(w => w.CreationDate)
                     .ToListAsync();
             }
             return Ok(workTasks);
@@ -75,10 +105,11 @@ namespace ManageMyHyper.Server.Controllers
         public async Task<IActionResult> UpdateWorkTask([FromBody] int workTaskId)
         {
             var user = await _utilityService.GetUser();
-            var workTask = await _context.WorkTasks.FindAsync(workTaskId);
+            var workTask = await _context.WorkTasks.FirstOrDefaultAsync(w => w.Id == workTaskId);
 
             var response = new ServiceResponse<string>();
-            if (workTask.AssignedUserId == null)
+
+            if (workTask != null && workTask.AssignedUserId == null)
             {
                 workTask.AssignedUserId = user.Id;
                 await _context.SaveChangesAsync();
@@ -88,18 +119,58 @@ namespace ManageMyHyper.Server.Controllers
             else
             {
                 response.Success = false;
-                response.Message = "Cette tâche est déjà réservée.";
+                response.Message = "Impossible de réserver cette tâche.";
             }
 
-            return Ok(workTask);
+            return Ok(response);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteWorkTask()
+        [HttpPut("validworktask")]
+        public async Task<IActionResult> ValidWorkTask([FromBody] int workTaskId)
         {
-            //TODO
-            //var workTasks = await _context.WorkTasks.ToListAsync();
-            return Ok();
+            var workTask = await _context.WorkTasks.FirstOrDefaultAsync(w => w.Id == workTaskId);
+
+            var response = new ServiceResponse<string>();
+
+            if (workTask != null)
+            {
+                workTask.IsDone = true;
+                workTask.DateHasBeenDone = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                response.Success = true;
+                response.Message = "La tâche a bien été validée.";
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "Impossible de retrouver la tâche à valider.";
+            }
+
+            return Ok(response);
+        }
+        
+        [HttpDelete]
+        public async Task<IActionResult> DeleteWorkTask(int workTaskId)
+        {
+            var workTask = await _context.WorkTasks.FirstOrDefaultAsync(w => w.Id == workTaskId);
+            var response = new ServiceResponse<string>();
+
+            if (workTask != null)
+            {
+                _context.WorkTasks.Remove(workTask);
+                await _context.SaveChangesAsync();
+
+                response.Success = true;
+                response.Message = "La tâche a bien été supprimée.";
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "Impossible de retrouver la tâche à supprimer.";
+            }
+            
+            return Ok(response);
         }
     }
 }

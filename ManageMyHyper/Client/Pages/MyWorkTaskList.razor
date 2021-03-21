@@ -1,0 +1,23 @@
+﻿@page "/myworktasklist"
+@inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
+@attribute [Authorize]
+
+<h3>Mes tâches</h3>
+<AuthorizeView Roles="Manager">
+    <Authorized>
+        <ManagerMyWorkTaskList />
+    </Authorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Employé">
+    <Authorized>
+        <EmployeeMyWorkTaskList />
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await WorkTaskService.LoadWorkTaskPrioritiesAsync();
+    }
+}

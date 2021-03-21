@@ -25,6 +25,7 @@ namespace ManageMyHyper.Client.Services
         public IList<WorkTaskPriority> WorkTaskPriorities { get; set; } = new List<WorkTaskPriority>();
 
         public IList<WorkTask> WorkTasks { get; set; } = new List<WorkTask>();
+        public IList<WorkTask> MyWorkTasks { get; set; } = new List<WorkTask>();
 
         public event Action OnChange;
 
@@ -60,6 +61,28 @@ namespace ManageMyHyper.Client.Services
             return response;
         }
 
+        public async Task DeleteWorkTask(int workTaskId)
+        {
+            var result = await _httpClient.DeleteAsync($"api/WorkTask/{workTaskId}");
+            var response = await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
+            if (response.Success)
+            {
+                _toastService.ShowSuccess(response.Message, "Succès");
+                WorkTasksTodo -= 1;
+                WorkTasksTodoChanged();
+            }
+            else
+            {
+                _toastService.ShowError(response.Message, "Erreur.");
+            }
+            await GetMyWorkTaskAsync();
+        }
+
+        public async Task GetMyWorkTaskAsync()
+        {
+            MyWorkTasks = await _httpClient.GetFromJsonAsync<IList<WorkTask>>("api/WorkTask/getmyworktasks");
+        }
+
         public async Task GetWorkTaskAsync()
         {
             WorkTasks = await _httpClient.GetFromJsonAsync<IList<WorkTask>>("api/WorkTask");
@@ -73,10 +96,21 @@ namespace ManageMyHyper.Client.Services
             }
         }
 
-        public void WorkTaskDone(string taskName)
+        public async Task ValidWorkTask(int workTaskId)
         {
-            WorkTasksTodo -= 1;
-            WorkTasksTodoChanged();
+            var result = await _httpClient.PutAsJsonAsync("api/WorkTask/validworktask", workTaskId);
+            var response = await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
+            if(response.Success)
+            {
+                _toastService.ShowSuccess(response.Message, "Succès");
+                WorkTasksTodo -= 1;
+                WorkTasksTodoChanged();
+            }
+            else
+            {
+                _toastService.ShowError(response.Message, "Erreur.");
+            }
+            await GetMyWorkTaskAsync();
         }
 
         void WorkTasksTodoChanged() => OnChange.Invoke();

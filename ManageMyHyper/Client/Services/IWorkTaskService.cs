@@ -12,12 +12,15 @@ namespace ManageMyHyper.Client.Services
         event Action OnChange;
         IList<WorkTaskPriority> WorkTaskPriorities { get; set; }
         public IList<WorkTask> WorkTasks { get; set; }
+        public IList<WorkTask> MyWorkTasks { get; set; }
         int WorkTasksTodo { get; set; }
         Task<ServiceResponse<string>> CreateNewWorkTask(WorkTask request);
-        void WorkTaskDone(string taskName);
         Task LoadWorkTaskPrioritiesAsync();
         Task GetWorkTaskAsync();
+        Task GetMyWorkTaskAsync();
         Task BookWorkTask(int workTaskId);
+        Task ValidWorkTask(int workTaskId);
+        Task DeleteWorkTask(int workTaskId);
 
     }
 }

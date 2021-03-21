@@ -6,23 +6,30 @@
             <th>Tâche</th>
             <th>Description</th>
             <th>Priorité</th>
-            <th>Manager</th>
             <th>Assignée à</th>
             <th>Date de création</th>
             <th>Finie le</th>
+            <th>Supprimer</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var workTask in WorkTaskService.WorkTasks)
+        @foreach (var workTask in WorkTaskService.MyWorkTasks)
         {
             <tr>
                 <td>@workTask.Name</td>
                 <td>@workTask.Description</td>
                 <td>@workTask.WorkTaskPriority.Name</td>
-                <td>@(workTask.CreatorUser.FirstName + " " + workTask.CreatorUser.LastName)</td>
                 <td>@(workTask.AssignedUser?.FirstName + " " + workTask.AssignedUser?.LastName)</td>
                 <td>@(workTask.CreationDate.ToString("dd/MM/yyyy"))</td>
                 <td>@(workTask.DateHasBeenDone?.ToString("dd/MM/yyyy"))</td>
+                <td>
+                    @if(!workTask.IsDone)
+                    {
+                        <button class="btn btn-primary-outline" @onclick="@(() => DeleteWorkTask(workTask.Id))">
+                            <img src="icons/delete_worktask.png" />
+                        </button>
+                    }
+                </td>
             </tr>
         }
     </tbody>
@@ -31,6 +38,11 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await WorkTaskService.GetWorkTaskAsync();
+        await WorkTaskService.GetMyWorkTaskAsync();
+    }
+
+    public async Task DeleteWorkTask(int workTaskId)
+    {
+        await WorkTaskService.DeleteWorkTask(workTaskId);
     }
 }
