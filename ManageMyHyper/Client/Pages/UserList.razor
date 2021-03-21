@@ -1,0 +1,59 @@
+﻿@page "/userlist"
+@inject ManageMyHyper.Client.Services.IUserService UserService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Roles = "Manager")]
+
+<AuthorizeView>
+    <Authorized>
+        <h3>Liste des utilisateurs</h3>
+
+        @if (UserService.Users.Count > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Prenom</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in UserService.Users)
+                    {
+                        <tr style="@GetMyStyle(user.Id)">
+                            <td>@user.FirstName</td>
+                            <td>@user.LastName</td>
+                            <td>@user.Email</td>
+                            <td>@user.UserRole.Name</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <span>Chargement des données...</span>
+        }
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+    int myUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UserService.GetUsers();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        myUserId = int.Parse(authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+    }
+
+    public string GetMyStyle(int userId)
+    {
+        if (userId == myUserId)
+            return "background-color: rgba(78, 205, 196, 0.5); font-weight:600;";
+        else
+            return string.Empty;
+    }
+}

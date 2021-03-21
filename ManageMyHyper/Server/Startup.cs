@@ -1,5 +1,6 @@
 using ManageMyHyper.Server.Data;
 using ManageMyHyper.Server.Services;
+using ManageMyHyper.Shared.Profiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace ManageMyHyper.Server
@@ -45,6 +47,7 @@ namespace ManageMyHyper.Server
             });
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IUtilityService, UtilityService>();
+            services.AddAutoMapper(typeof(UserProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

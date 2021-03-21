@@ -26,6 +26,7 @@ namespace ManageMyHyper.Client
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<IWorkTaskService, WorkTaskService>();
             builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore();
