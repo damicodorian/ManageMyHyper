@@ -82,7 +82,14 @@ namespace ManageMyHyper.Server.Controllers
             return Ok(workTasks);
         }
 
-        [HttpPost]
+        [HttpGet("getnumberoftasks")]
+        public async Task<IActionResult> GetNumberOfTasks()
+        {
+            var numberOfRemainingWorkTasks = (await _context.WorkTasks.Where(w => !w.IsDone).ToListAsync()).Count();
+            return Ok(numberOfRemainingWorkTasks);
+        }
+        
+       [HttpPost]
         public async Task<IActionResult> AddWorkTask(WorkTask request)
         {
             var user = await _utilityService.GetUser();

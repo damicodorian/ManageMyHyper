@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using ManageMyHyper.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,13 @@ namespace ManageMyHyper.Client
     {
         private readonly ILocalStorageService _localStorageService;
         private readonly HttpClient _http;
+        private readonly IWorkTaskService _workTaskService;
 
-        public CustomAuthenticationStateProvider(ILocalStorageService localStorageService, HttpClient http)
+        public CustomAuthenticationStateProvider(ILocalStorageService localStorageService, HttpClient http, IWorkTaskService workTaskService)
         {
             _localStorageService = localStorageService;
             _http = http;
+            _workTaskService = workTaskService;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -30,13 +33,13 @@ namespace ManageMyHyper.Client
             var identity = new ClaimsIdentity();
             _http.DefaultRequestHeaders.Authorization = null;
 
-
             if (!string.IsNullOrEmpty(authToken))
             {
                 try
                 {
                     identity = new ClaimsIdentity(ParseClaimsFromJwt(authToken), "jwt");
                     _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                    await _workTaskService.GetNumberOfRemainingWorkTasks();
                 }
                 catch (Exception)
                 {
@@ -49,7 +52,6 @@ namespace ManageMyHyper.Client
             var state = new AuthenticationState(user);
 
             NotifyAuthenticationStateChanged(Task.FromResult(state));
-
             return state;
         }
 

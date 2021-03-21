@@ -11,10 +11,12 @@ namespace ManageMyHyper.Client.Services
     public class AuthenticationService : IAuthenticationService
     {
         private readonly HttpClient _httpClient;
+        private readonly IWorkTaskService _workTaskService;
 
-        public AuthenticationService(HttpClient httpClient)
+        public AuthenticationService(HttpClient httpClient, IWorkTaskService workTaskService)
         {
             _httpClient = httpClient;
+            _workTaskService = workTaskService;
         }
 
         public async Task<ServiceResponse<string>> Login(UserLogin request)

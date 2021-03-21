@@ -13,7 +13,7 @@ namespace ManageMyHyper.Client.Services
         IList<WorkTaskPriority> WorkTaskPriorities { get; set; }
         public IList<WorkTask> WorkTasks { get; set; }
         public IList<WorkTask> MyWorkTasks { get; set; }
-        int WorkTasksTodo { get; set; }
+        int NumberOfRemainingWorkTasksTodo { get; set; }
         Task<ServiceResponse<string>> CreateNewWorkTask(WorkTask request);
         Task LoadWorkTaskPrioritiesAsync();
         Task GetWorkTaskAsync();
@@ -21,6 +21,7 @@ namespace ManageMyHyper.Client.Services
         Task BookWorkTask(int workTaskId);
         Task ValidWorkTask(int workTaskId);
         Task DeleteWorkTask(int workTaskId);
+        Task GetNumberOfRemainingWorkTasks();
 
     }
 }

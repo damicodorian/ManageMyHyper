@@ -20,7 +20,7 @@ namespace ManageMyHyper.Client.Services
             _httpClient = httpClient;
         }
 
-        public int WorkTasksTodo { get; set; } = 15;
+        public int NumberOfRemainingWorkTasksTodo { get; set; }
 
         public IList<WorkTaskPriority> WorkTaskPriorities { get; set; } = new List<WorkTaskPriority>();
 
@@ -42,6 +42,7 @@ namespace ManageMyHyper.Client.Services
                 _toastService.ShowError(response.Message, "Erreur.");
             }
             await GetWorkTaskAsync();
+            await GetNumberOfRemainingWorkTasks();
         }
 
         public async Task<ServiceResponse<string>> CreateNewWorkTask(WorkTask request)
@@ -50,14 +51,13 @@ namespace ManageMyHyper.Client.Services
             var response =  await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
             if(response.Success)
             {
-                WorkTasksTodo += 1;
                 _toastService.ShowSuccess(response.Message, "Succès");
-                WorkTasksTodoChanged();
             }
             else
             {
                 _toastService.ShowError(response.Message, "Erreur.");
             }
+            await GetNumberOfRemainingWorkTasks();
             return response;
         }
 
@@ -68,24 +68,25 @@ namespace ManageMyHyper.Client.Services
             if (response.Success)
             {
                 _toastService.ShowSuccess(response.Message, "Succès");
-                WorkTasksTodo -= 1;
-                WorkTasksTodoChanged();
             }
             else
             {
                 _toastService.ShowError(response.Message, "Erreur.");
             }
             await GetMyWorkTaskAsync();
+            await GetNumberOfRemainingWorkTasks();
         }
 
         public async Task GetMyWorkTaskAsync()
         {
             MyWorkTasks = await _httpClient.GetFromJsonAsync<IList<WorkTask>>("api/WorkTask/getmyworktasks");
+            await GetNumberOfRemainingWorkTasks();
         }
 
         public async Task GetWorkTaskAsync()
         {
             WorkTasks = await _httpClient.GetFromJsonAsync<IList<WorkTask>>("api/WorkTask");
+            await GetNumberOfRemainingWorkTasks();
         }
 
         public async Task LoadWorkTaskPrioritiesAsync()
@@ -103,16 +104,24 @@ namespace ManageMyHyper.Client.Services
             if(response.Success)
             {
                 _toastService.ShowSuccess(response.Message, "Succès");
-                WorkTasksTodo -= 1;
-                WorkTasksTodoChanged();
             }
             else
             {
                 _toastService.ShowError(response.Message, "Erreur.");
             }
             await GetMyWorkTaskAsync();
+            await GetNumberOfRemainingWorkTasks();
         }
 
-        void WorkTasksTodoChanged() => OnChange.Invoke();
+        public async Task GetNumberOfRemainingWorkTasks()
+        {
+            NumberOfRemainingWorkTasksTodo = await _httpClient.GetFromJsonAsync<int>("api/WorkTask/getnumberoftasks");
+            NumberOfRemainingWorkTasksTodoChanged();
+
+            
+            
+        }
+
+        void NumberOfRemainingWorkTasksTodoChanged() => OnChange.Invoke();
     }
 }

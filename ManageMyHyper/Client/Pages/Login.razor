@@ -2,6 +2,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ManageMyHyper.Client.Services.IAuthenticationService AuthenticationService
 @inject IToastService ToastService
+@inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
 
 Veuillez vous connecter ou vous <NavLink href="register">enregistrer</NavLink> pour continuer.
 <EditForm Model="@user" OnValidSubmit="HandleLogin">
@@ -27,10 +28,11 @@ Veuillez vous connecter ou vous <NavLink href="register">enregistrer</NavLink> p
     private async void HandleLogin()
     {
         var result = await AuthenticationService.Login(user);
-        if(result.Success)
+        if (result.Success)
         {
             await LocalStorage.SetItemAsync<string>("authenticationToken", result.Data);
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            await WorkTaskService.GetNumberOfRemainingWorkTasks();
         }
         else
         {
