@@ -1,10 +1,32 @@
-﻿<div class="top-menu">
-    <img src="icons/task.png" />
-    Tâches restantes :
-    @WorkTasksTodo
-</div>
+﻿@inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
+@implements IDisposable
+<AuthorizeView>
+    <Authorized>
+        <div class="top-menu">
+            <span class="popover-header">
+                Tâches restantes :
+                @WorkTaskService.WorkTasksTodo
+            </span>
+            @*<AddWorkTask/>*@
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div>
+            <NavLink href="">Se connecter</NavLink>
+            <NavLink href="register">S'enregistrer</NavLink>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 
 @code {
-    public int WorkTasksTodo { get; set; } = 10;
+    protected override void OnInitialized()
+    {
+        WorkTaskService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        WorkTaskService.OnChange -= StateHasChanged;
+    }
 }

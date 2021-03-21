@@ -1,0 +1,43 @@
+﻿@page "/createworktask"
+@inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
+@attribute [Authorize]
+
+<h3>Création d'une nouvelle tâche.</h3>
+
+@if(WorkTaskService.WorkTaskPriorities.Count > 0)
+{
+    <div class="form-group">
+        <label>Priorité de la tâche : </label>
+        <select @bind="selectedWorkTaskPriorityId" class="form-control">
+            @foreach (var workTaskPriority in WorkTaskService.WorkTaskPriorities)
+            {
+                <option value="@workTaskPriority.Id">@workTaskPriority.Name</option>
+            }
+        </select>
+    </div>
+
+    <button @onclick="CreateNewWorkTask" class="btn btn-primary">Créer la tâche</button>
+
+}
+else
+{
+    <span>Chargement des données...</span>
+}
+
+@code {
+    int selectedWorkTaskPriorityId = 1;
+    string workTaskName = "Faire le ménage.";
+
+    private void CreateNewWorkTask()
+    {
+        Console.WriteLine("selectedWorkTaskPriorityId : " + selectedWorkTaskPriorityId);
+        ManageMyHyper.Shared.WorkTaskPriority workTaskPriority =
+            WorkTaskService.WorkTaskPriorities.FirstOrDefault(w => w.Id == selectedWorkTaskPriorityId);
+        WorkTaskService.CreateNewWorkTask(workTaskName, selectedWorkTaskPriorityId);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await WorkTaskService.LoadWorkTaskPrioritiesAsync();
+    }
+}

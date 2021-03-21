@@ -1,0 +1,41 @@
+﻿@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ManageMyHyper.Client.Services.IAuthenticationService AuthenticationService
+@inject IToastService ToastService
+
+Veuillez vous connecter ou vous <NavLink href="register">enregistrer</NavLink> pour continuer.
+<EditForm Model="@user" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="user.Email" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <InputText id="password" @bind-Value="user.Password" type="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+    <ValidationSummary />
+</EditForm>
+
+
+@code {
+    private ManageMyHyper.Shared.UserLogin user = new ManageMyHyper.Shared.UserLogin();
+
+    private async void HandleLogin()
+    {
+        var result = await AuthenticationService.Login(user);
+        if(result.Success)
+        {
+            await LocalStorage.SetItemAsync<string>("authenticationToken", result.Data);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        }
+        else
+        {
+            ToastService.ShowError(result.Message);
+        }
+
+    }
+}

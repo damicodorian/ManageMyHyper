@@ -1,7 +1,11 @@
 ﻿@page "/"
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<AuthorizeView>
+    <Authorized>
+        <h1>Bonjour @context.User.Identity.Name.</h1>
+        Vous pouvez consulter la <NavLink href="worktasklist">liste de tâches</NavLink>.
+    </Authorized>
+    <NotAuthorized>
+        <h1>Bienvenue sur l'application de gestion de votre Hyper.</h1>
+        <Login/>
+    </NotAuthorized>
+</AuthorizeView>

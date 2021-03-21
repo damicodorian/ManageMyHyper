@@ -1,0 +1,28 @@
+﻿@page "/worktasklist"
+@inject ManageMyHyper.Client.Services.IWorkTaskService WorkTaskService
+@attribute [Authorize]
+
+<h3>Liste des tâches</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var managerWorkTask in WorkTaskService.MyWorkTasks)
+        {
+            <tr>
+                <td>@managerWorkTask.WorkTaskId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {      
+    protected override async Task OnInitializedAsync()
+    {
+        await WorkTaskService.LoadWorkTaskPrioritiesAsync();
+    }
+}
