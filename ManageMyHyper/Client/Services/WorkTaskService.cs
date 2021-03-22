@@ -63,7 +63,7 @@ namespace ManageMyHyper.Client.Services
 
         public async Task DeleteWorkTask(int workTaskId)
         {
-            var result = await _httpClient.DeleteAsync($"api/WorkTask/{workTaskId}");
+            var result = await _httpClient.DeleteAsync($"api/WorkTask?workTaskId={workTaskId}");
             var response = await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
             if (response.Success)
             {
